@@ -1,5 +1,6 @@
 package com.example.books.model;
 
+import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
@@ -74,10 +75,14 @@ public class Book implements Parcelable {
 
     @BindingAdapter({"android:imageUrl"})
     public static void loadImage(ImageView imageView, String imageUrl) {
-        Picasso.get()
-                .load(imageUrl)
-                .placeholder(R.drawable.ic_assignment_black_24dp)
-                .into(imageView);
+        if (!imageUrl.isEmpty()) {
+            Picasso.get()
+                    .load(imageUrl)
+                    .placeholder(R.drawable.ic_assignment_black_24dp)
+                    .into(imageView);
+        } else {
+            imageView.setBackgroundResource(R.drawable.ic_assignment_black_24dp);
+        }
     }
 
 

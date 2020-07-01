@@ -1,11 +1,13 @@
 package com.example.books;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.view.MenuItemCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
@@ -33,7 +35,17 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         mLoadingProgress = findViewById(R.id.progressBar);
         mBooksList = findViewById(R.id.recyclerViewBooks);
 
-        URL bookUrl = ApiUtil.buildURL("cooking");
+        Intent intent = getIntent();
+        String query = intent.getStringExtra("query");
+
+        URL bookUrl = null;
+
+        if (query == null || query.isEmpty()) {
+            bookUrl = ApiUtil.buildURL("cooking");
+        } else {
+            bookUrl = ApiUtil.buildURL(query);
+        }
+
         new BooksQueryTask().execute(bookUrl);
 
         LinearLayoutManager manager = new LinearLayoutManager(
@@ -96,5 +108,15 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         return true;
     }
 
-
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_advanced_search:
+                Intent intent = new Intent(this, SearchActivity.class);
+                startActivity(intent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 }
