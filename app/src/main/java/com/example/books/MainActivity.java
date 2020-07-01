@@ -7,6 +7,7 @@ import androidx.core.view.MenuItemCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -83,13 +84,25 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
         @Override
         protected void onPostExecute(String result) {
-            mLoadingProgress.setVisibility(View.INVISIBLE);
+            if (result == null) {
+                mLoadingProgress.setVisibility(View.INVISIBLE);
 
-            ArrayList<Book> mBooks = ApiUtil.getBooksFromJson(result);
-            String resultString = "";
+                String mError = "Kindly ensure you have a strong internet connection";
+                ProgressDialog mErrorDialog = new ProgressDialog(MainActivity.this);
+                mErrorDialog.setTitle("Error Message");
+                mErrorDialog.setMessage(mError);
+                mErrorDialog.setCanceledOnTouchOutside(false);
+                mErrorDialog.show();
+            } else {
+                mLoadingProgress.setVisibility(View.INVISIBLE);
 
-            BooksAdapter adapter = new BooksAdapter(mBooks);
-            mBooksList.setAdapter(adapter);
+                ArrayList<Book> mBooks = ApiUtil.getBooksFromJson(result);
+                String resultString = "";
+
+                BooksAdapter adapter = new BooksAdapter(mBooks);
+                mBooksList.setAdapter(adapter);
+            }
+
 
         }
 
@@ -119,4 +132,5 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                 return super.onOptionsItemSelected(item);
         }
     }
+
 }

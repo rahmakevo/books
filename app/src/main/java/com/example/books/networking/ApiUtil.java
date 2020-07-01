@@ -113,8 +113,16 @@ public class ApiUtil {
                 JSONObject bookJSON = arrayBooks.getJSONObject(i);
                 JSONObject volumeInfoJSON =
                         bookJSON.getJSONObject(VOLUME_INFO);
-                JSONObject imageLinkJson = volumeInfoJSON.getJSONObject(IMAGE_LINKS);
-                int authorNum = volumeInfoJSON.getJSONArray(AUTHORS).length();
+                JSONObject imageLinkJson = null;
+                if (volumeInfoJSON.has(IMAGE_LINKS)) {
+                    imageLinkJson = volumeInfoJSON.getJSONObject(IMAGE_LINKS);
+                }
+                int authorNum;
+                try {
+                    authorNum = volumeInfoJSON.getJSONArray(AUTHORS).length();
+                } catch (Exception e) {
+                    authorNum = 0;
+                }
                 String[] authors = new String[authorNum];
                 for (int j=0; j<authorNum;j++) {
                     authors[j] = volumeInfoJSON.getJSONArray(AUTHORS).get(j).toString();
@@ -127,7 +135,7 @@ public class ApiUtil {
                         (volumeInfoJSON.isNull(PUBLISHER)?"":volumeInfoJSON.getString(PUBLISHER)),
                         (volumeInfoJSON.isNull(PUBLISHED_DATE)?"":volumeInfoJSON.getString(PUBLISHED_DATE)),
                         (volumeInfoJSON.isNull(DESCRIPTION)?"":volumeInfoJSON.getString(DESCRIPTION)),
-                        (volumeInfoJSON.isNull(THUMBNAIL)?"":imageLinkJson.getString(THUMBNAIL)));
+                        (imageLinkJson == null)?"": imageLinkJson.getString(THUMBNAIL));
                 books.add(book);
             }
         }
