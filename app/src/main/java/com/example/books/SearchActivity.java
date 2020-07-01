@@ -2,13 +2,16 @@ package com.example.books;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.books.common.SharedPreferencesUtil;
 import com.example.books.networking.ApiUtil;
 
 import java.net.URL;
@@ -37,6 +40,21 @@ public class SearchActivity extends AppCompatActivity {
                     Toast.makeText(SearchActivity.this, "Please enter valid search data", Toast.LENGTH_SHORT).show();
                 } else {
                     URL queryUrl = ApiUtil.buildURL(title, author, publisher, isbn);
+
+                    // sharedPrefs
+                    Context context = getApplicationContext();
+                    int position = SharedPreferencesUtil.getPreferencesInt(context, SharedPreferencesUtil.POSITION);
+                    if ( position == 0 || position == 5 ) {
+                        position = 1;
+                    } else {
+                        position++;
+                    }
+
+                    String key = SharedPreferencesUtil.QUERY + String.valueOf(position);
+                    String value = title + "," + author + "," + publisher + "," + isbn;
+                    SharedPreferencesUtil.setPreferencesString(context, key, value);
+                    SharedPreferencesUtil.setPreferencesInt(context, SharedPreferencesUtil.POSITION, position);
+
                     Intent intent = new Intent(SearchActivity.this, MainActivity.class);
                     intent.putExtra("query", queryUrl);
                     startActivity(intent);

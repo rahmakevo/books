@@ -18,6 +18,7 @@ import android.widget.ProgressBar;
 
 
 import com.example.books.adapter.BooksAdapter;
+import com.example.books.common.SharedPreferencesUtil;
 import com.example.books.model.Book;
 import com.example.books.networking.ApiUtil;
 
@@ -118,6 +119,14 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         final MenuItem mSearchItem = menu.findItem(R.id.action_search);
         final SearchView mSearchView = (SearchView) MenuItemCompat.getActionView(mSearchItem);
         mSearchView.setOnQueryTextListener(this);
+
+        ArrayList<String> recentUtil = SharedPreferencesUtil.getQueryList(getApplicationContext());
+        int itemNumber = recentUtil.size();
+        MenuItem recentMenu;
+        for (int i=0; i<itemNumber; i++) {
+            recentMenu = menu.add(Menu.NONE, i, Menu.NONE, recentUtil.get(i));
+        }
+
         return true;
     }
 
@@ -129,7 +138,22 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                 startActivity(intent);
                 return true;
             default:
-                return super.onOptionsItemSelected(item);
+                int position = item.getItemId() + 1;
+                String prefsName = SharedPreferencesUtil.QUERY + String.valueOf(position);
+                String query = SharedPreferencesUtil.getPreferencesString(getApplicationContext(), prefsName);
+                String[] prefsParams = query.split("\\,");
+                String[] queryParams = new String[4];
+                for (int i = 0; i < prefsParams.length; i++) {
+                    queryParams[i] = prefsParams[i];
+                }
+                URL bookUrl = ApiUtil.buildURL(
+                        (queryParams[0] == null)?"":queryParams[0],
+                        (queryParams[1] == null)?"":queryParams[1],
+                        (queryParams[2] == null)?"":queryParams[2],
+                        (queryParams[3] == null)?"":queryParams[3]
+                );
+                new BooksQueryTask().execute(bookUrl);
+                return true;
         }
     }
 
